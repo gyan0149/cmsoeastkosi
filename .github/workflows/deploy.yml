@@ -28,8 +28,12 @@ jobs:
       - run: |
           if [ -f public/CNAME ]; then echo "BASE_PATH=/" >> "$GITHUB_ENV"; else echo "BASE_PATH=/${{ github.event.repository.name }}/" >> "$GITHUB_ENV"; fi
       - run: npm run build
-      # Serve index.html for unknown paths so deep links like /notices work.
-      - run: cp dist/index.html dist/404.html
+      # Each page gets its own index.html so links like /contact load with status 200; 404.html covers the rest.
+      - run: |
+          cp dist/index.html dist/404.html
+          for p in about school-information academics admissions principal gallery notices results downloads infrastructure contact; do
+            mkdir -p "dist/$p" && cp dist/index.html "dist/$p/index.html"
+          done
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
