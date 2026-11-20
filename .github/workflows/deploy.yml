@@ -28,10 +28,13 @@ jobs:
       - run: |
           if [ -f public/CNAME ]; then echo "BASE_PATH=/" >> "$GITHUB_ENV"; else echo "BASE_PATH=/${{ github.event.repository.name }}/" >> "$GITHUB_ENV"; fi
       - run: npm run build
+        env:
+          # Worker URL for live AI answers; without it the AI pages run in demo mode.
+          VITE_AI_URL: ${{ vars.VITE_AI_URL }}
       # Each page gets its own index.html so links like /contact load with status 200; 404.html covers the rest.
       - run: |
           cp dist/index.html dist/404.html
-          for p in about school-information academics admissions principal gallery notices results downloads infrastructure contact; do
+          for p in about school-information academics admissions principal gallery notices results downloads infrastructure contact schemes activities ai ai/study ai/quiz ai/english ai/planner ai/career ai/scholarship ai/teacher ai/school; do
             mkdir -p "dist/$p" && cp dist/index.html "dist/$p/index.html"
           done
       - uses: actions/upload-pages-artifact@v3
