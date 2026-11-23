@@ -14,6 +14,8 @@ import { SchoolInfoPage } from "./pages/SchoolInfoPage";
 import { UploadsPage } from "./pages/UploadsPage";
 import { ActivitiesPage } from "./pages/ActivitiesPage";
 import { SchemesPage } from "./pages/SchemesPage";
+import { StaffPage } from "./pages/StaffPage";
+import { TeachersPage } from "./pages/TeachersPage";
 import { AiChatPage } from "./pages/ai/AiChatPage";
 import { AiHubPage } from "./pages/ai/AiHubPage";
 import { EnglishPage } from "./pages/ai/EnglishPage";
@@ -37,6 +39,8 @@ export default function App() {
           <Route path="results" element={<UploadsPage kind="result" />} />
           <Route path="downloads" element={<UploadsPage kind="download" />} />
           <Route path="schemes" element={<SchemesPage />} />
+          <Route path="teachers" element={<TeachersPage />} />
+          <Route path="staff" element={<StaffPage />} />
           <Route path="activities" element={<ActivitiesPage />} />
           <Route path="ai" element={<AiHubPage />} />
           <Route path="ai/quiz" element={<QuizPage />} />

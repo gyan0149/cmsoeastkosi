@@ -1,3 +1,4 @@
+import { StaffOnly } from "../staff/StaffLogin";
 import { SchoolPageHeader } from "../components/SchoolPageHeader";
 import { DemoNote, UploadForm, UploadList } from "../components/Uploads";
 import { UPLOAD_CONFIGS } from "../data/uploadConfig";
@@ -22,7 +23,9 @@ export function UploadsPage({ kind }: { kind: Exclude<UploadKind, "photo"> }) {
       <PageBody>
         <div className="space-y-3">
           <UploadForm config={config} />
-          <DemoNote />
+          <StaffOnly>
+            <DemoNote />
+          </StaffOnly>
         </div>
         <Section title={`${page.list} (${items.length})`}>
           <UploadList items={items} empty={config.empty} />

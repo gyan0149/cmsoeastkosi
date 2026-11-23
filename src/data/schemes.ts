@@ -178,3 +178,19 @@ export const SCHEME_DOCUMENTS: Bi[] = [
   { en: "Marksheet of the previous class", hi: "पिछली कक्षा की मार्कशीट" },
   { en: "Passport-size photo", hi: "पासपोर्ट साइज़ फ़ोटो" },
 ];
+
+// Whether a student of this class, gender and category can get the scheme.
+export function eligible(s: WelfareScheme, cls: number, girl: boolean, cat: Category): boolean {
+  if (cls < s.classFrom || cls > s.classTo) return false;
+  if (s.girlsOnly && !girl) return false;
+  if (s.categories && !s.categories.includes(cat)) return false;
+  return true;
+}
+
+export const CATEGORIES: { value: Category; en: string; hi: string }[] = [
+  { value: "General", en: "General", hi: "सामान्य" },
+  { value: "SC", en: "SC", hi: "अनुसूचित जाति (SC)" },
+  { value: "ST", en: "ST", hi: "अनुसूचित जनजाति (ST)" },
+  { value: "OBC", en: "OBC", hi: "पिछड़ा वर्ग (OBC)" },
+  { value: "Minority", en: "Minority", hi: "अल्पसंख्यक" },
+];

@@ -2,6 +2,8 @@ import { useState, type FormEvent } from "react";
 import type { UploadConfig } from "../data/uploadConfig";
 import { addUpload, deleteUpload, fileSize, formatDate, todayIso, useFileUrl, type UploadItem } from "../data/uploads";
 import { useSchool } from "../schoolContext";
+import { StaffOnly } from "../staff/StaffLogin";
+import { useStaffRole } from "../staff/staff";
 
 export function DemoNote() {
   return (
@@ -23,6 +25,7 @@ export function UploadForm({ config }: { config: UploadConfig }) {
   const [file, setFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
   const [done, setDone] = useState(false);
+  const role = useStaffRole();
 
   async function submit(e: FormEvent) {
     e.preventDefault();
@@ -49,6 +52,8 @@ export function UploadForm({ config }: { config: UploadConfig }) {
       setSaving(false);
     }
   }
+
+  if (!role) return <StaffOnly prompt>{null}</StaffOnly>;
 
   if (!open) {
     return (
@@ -113,6 +118,7 @@ export function UploadForm({ config }: { config: UploadConfig }) {
 
 function UploadRow({ item, compact }: { item: UploadItem; compact?: boolean }) {
   const url = useFileUrl(item);
+  const role = useStaffRole();
   const isImage = item.file?.type.startsWith("image/");
   return (
     <li className="flex flex-col gap-3 py-4 sm:flex-row sm:items-start" data-tour="upload-item">
@@ -135,7 +141,7 @@ function UploadRow({ item, compact }: { item: UploadItem; compact?: boolean }) {
           </div>
         )}
       </div>
-      {!compact && (
+      {!compact && role && (
         <button
           type="button"
           onClick={() => confirm("यह आइटम हटाएँ? / Delete this item?") && deleteUpload(item.id)}

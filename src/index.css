@@ -43,6 +43,17 @@ body {
   .ticker-wrap { overflow-x: auto; }
 }
 
+@keyframes kenburns {
+  from { transform: scale(1); }
+  to { transform: scale(1.12); }
+}
+.animate-kenburns {
+  animation: kenburns 6s ease-out forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-kenburns { animation: none; }
+}
+
 @keyframes fade-up {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: none; }

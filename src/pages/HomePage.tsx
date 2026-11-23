@@ -1,9 +1,11 @@
-import type { ReactNode } from "react";
+import { useEffect, useMemo, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { UploadList } from "../components/Uploads";
 import { useUploads } from "../data/uploads";
 import { LocationSection } from "../components/LocationSection";
-import { PhotoSlideshow } from "../components/PhotoSlideshow";
+import { AskPrincipal } from "../components/AskPrincipal";
+import { CardSlide, PhotoSlideshow, type Slide } from "../components/PhotoSlideshow";
+import { StaffOnly } from "../staff/StaffLogin";
 import { PrincipalAvatar } from "../components/PrincipalAvatar";
 import { SchoolGatePicture } from "../components/SchoolGatePicture";
 import {
@@ -82,9 +84,55 @@ function bannerFirst(photos: SchoolPhoto[], banner?: string): SchoolPhoto[] {
   return [...first, ...photos.filter((p) => p.src !== banner)];
 }
 
-function Banner() {
+// Photos uploaded by staff in the gallery, as slideshow slides.
+function useUploadedSlides(udise: string): Slide[] {
+  const items = useUploads(udise, "photo");
+  const slides = useMemo(
+    () => items.filter((i) => i.file).map((i) => ({ key: i.id, caption: i.title, src: URL.createObjectURL(i.file!) })),
+    [items],
+  );
+  useEffect(() => () => slides.forEach((x) => URL.revokeObjectURL(x.src)), [slides]);
+  return slides;
+}
+
+function useHeroSlides(): Slide[] {
   const school = useSchool();
   const { t } = useLang();
+  const uploaded = useUploadedSlides(school.udise);
+  const real: Slide[] = (
+    school.photos?.length ? bannerFirst(school.photos, school.bannerPhoto) : school.bannerPhoto ? [{ src: school.bannerPhoto, caption: school.name }] : []
+  ).map((p) => ({ key: p.src, caption: p.caption, src: imageUrl(p.src) }));
+  const photos = [...uploaded, ...real];
+  if (photos.length >= 3) return photos;
+  // Until the school has enough photos, drawn slides keep the slideshow moving.
+  return [
+    ...photos,
+    ...(real.length
+      ? []
+      : [{ key: "gate", caption: t(`Welcome to ${school.name}`, `${school.name} में आपका स्वागत है`), node: <SchoolGatePicture name={school.name} place={`${school.block}, ${school.district}`} /> }]),
+    {
+      key: "ai",
+      caption: t("AI Learning Corner", "AI से पढ़ाई"),
+      node: <CardSlide icon="✨" tone="from-indigo-700 to-brand-700" title={t("AI Learning Corner", "AI से पढ़ाई")} text={t("Free study help, quizzes and career guidance in Hindi and English", "हिंदी और अंग्रेज़ी में मुफ़्त पढ़ाई मदद, क्विज़ और करियर सलाह")} />,
+    },
+    {
+      key: "schemes",
+      caption: t("Welfare schemes and scholarships", "कल्याण योजनाएँ और छात्रवृत्ति"),
+      node: <CardSlide icon="🎓" tone="from-ochre-700 to-accent-600" title={t("Schemes for every child", "हर बच्चे के लिए योजनाएँ")} text={t("Free books, uniform, cycle, scholarships, with alerts sent to parents", "मुफ़्त किताबें, पोशाक, साइकिल, छात्रवृत्ति, अभिभावकों को सूचना के साथ")} />,
+    },
+    {
+      key: "activities",
+      caption: t("Sports, art and activities", "खेल, कला और गतिविधियाँ"),
+      node: <CardSlide icon="🏅" tone="from-brand-800 to-emerald-600" title={t("Learning beyond books", "किताबों से आगे की सीख")} text={t("Sports, Jhumar and Chhau dance, Sohrai art, science club and more", "खेल, झूमर और छऊ नृत्य, सोहराय कला, विज्ञान क्लब और बहुत कुछ")} />,
+    },
+  ];
+}
+
+function Banner() {
+  const school = useSchool();
+  const to = useSchoolPath();
+  const { t } = useLang();
+  const slides = useHeroSlides();
   return (
     <div className="relative overflow-hidden bg-gradient-to-br from-brand-800 via-brand-700 to-brand-600 text-white">
       <div className="absolute inset-0 opacity-10 [background-image:radial-gradient(circle_at_1px_1px,white_1px,transparent_0)] [background-size:24px_24px]" />
@@ -130,24 +178,16 @@ function Banner() {
           data-tour="photos"
           className="overflow-hidden rounded-lg shadow-xl ring-4 ring-white/20 transition duration-500 hover:rotate-0 md:rotate-1"
         >
-          {school.photos?.length ? (
-            <PhotoSlideshow
-              photos={bannerFirst(school.photos, school.bannerPhoto)}
-            />
-          ) : school.bannerPhoto ? (
-            <img
-              src={imageUrl(school.bannerPhoto)}
-              alt={`${school.name} main gate`}
-              className="block aspect-[16/10] w-full object-cover"
-            />
-          ) : (
-            <SchoolGatePicture
-              name={school.name}
-              place={`${school.block}, ${school.district}`}
-            />
-          )}
+          <PhotoSlideshow slides={slides} />
         </div>
       </div>
+      <StaffOnly>
+        <div className="relative mx-auto -mt-12 mb-14 max-w-7xl px-4 text-right md:-mt-28 md:mb-28">
+          <Link to={to("gallery")} className="rounded-full bg-white/15 px-3 py-1.5 text-sm font-medium text-white ring-1 ring-white/30 hover:bg-white/25">
+            ➕ {t("Add photos to the slideshow", "स्लाइडशो में फ़ोटो जोड़ें")}
+          </Link>
+        </div>
+      </StaffOnly>
       <Hills />
     </div>
   );
@@ -339,6 +379,10 @@ export function HomePage() {
                     {t("Read the full message", "पूरा संदेश पढ़ें")}
                   </MoreLink>
                 </div>
+              </div>
+              <div className="mt-6 border-t border-slate-200 pt-5" data-tour="faq">
+                <h3 className="mb-3 font-semibold text-brand-800">❓ {t("Questions & Answers", "सवाल-जवाब")}</h3>
+                <AskPrincipal compact />
               </div>
             </Section>
           </div>

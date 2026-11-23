@@ -5,6 +5,7 @@ import { displayPhone, getSchool, imageUrl, mapLink, schoolAddress, schoolAddres
 import { useLang } from "../i18n";
 import { navItems } from "../navigation";
 import { LangToggle } from "./LangToggle";
+import { StaffButton, StaffLoginDialog } from "../staff/StaffLogin";
 import { SchoolContext, useSchool, useSchoolPath } from "../schoolContext";
 import { GuidedTour } from "./GuidedTour";
 import { Logo } from "./Logo";
@@ -25,7 +26,7 @@ function ScrollManager() {
   return null;
 }
 
-export function TopStrip({ right }: { right?: ReactNode }) {
+export function TopStrip({ right, staff }: { right?: ReactNode; staff?: boolean }) {
   const { t } = useLang();
   return (
     <div className="bg-brand-900 text-xs text-brand-100">
@@ -35,6 +36,7 @@ export function TopStrip({ right }: { right?: ReactNode }) {
         </span>
         <span className="flex shrink-0 items-center gap-4">
           {right && <span className="hidden sm:inline">{right}</span>}
+          {staff && <StaffButton />}
           <LangToggle className="rounded-full bg-white/10 px-2.5 py-1 text-white" />
         </span>
       </div>
@@ -249,7 +251,8 @@ export function SchoolLayout() {
     <SchoolContext.Provider value={school}>
       <div className="flex min-h-screen flex-col pb-16 md:pb-0">
         <ScrollManager />
-        <TopStrip right={`☎ ${displayPhone(school.hmPhone)}`} />
+        <TopStrip right={`☎ ${displayPhone(school.hmPhone)}`} staff />
+        <StaffLoginDialog />
         <Header />
         <NavBar />
         <main key={pathname} className="animate-fade-up flex-1">

@@ -1,25 +1,13 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { SchemeAlertsPanel, SchemeAlertSignup } from "../components/SchemeAlerts";
 import { SchoolPageHeader } from "../components/SchoolPageHeader";
+import { StaffOnly } from "../staff/StaffLogin";
 import { PageBody, Section } from "../components/ui";
-import { SCHEME_DOCUMENTS, SCHEMES, type Category, type WelfareScheme } from "../data/schemes";
+import { CATEGORIES, eligible, SCHEME_DOCUMENTS, SCHEMES, type Category, type WelfareScheme } from "../data/schemes";
 import { useLang } from "../i18n";
 import { useSchool, useSchoolPath } from "../schoolContext";
 
-const CATEGORIES: { value: Category; en: string; hi: string }[] = [
-  { value: "General", en: "General", hi: "सामान्य" },
-  { value: "SC", en: "SC", hi: "अनुसूचित जाति (SC)" },
-  { value: "ST", en: "ST", hi: "अनुसूचित जनजाति (ST)" },
-  { value: "OBC", en: "OBC", hi: "पिछड़ा वर्ग (OBC)" },
-  { value: "Minority", en: "Minority", hi: "अल्पसंख्यक" },
-];
-
-function eligible(s: WelfareScheme, cls: number, girl: boolean, cat: Category): boolean {
-  if (cls < s.classFrom || cls > s.classTo) return false;
-  if (s.girlsOnly && !girl) return false;
-  if (s.categories && !s.categories.includes(cat)) return false;
-  return true;
-}
 
 export function SchemeCard({ s }: { s: WelfareScheme }) {
   const { t } = useLang();
@@ -119,6 +107,18 @@ export function SchemesPage() {
             </button>
           </p>
         </Section>
+
+        <div id="alerts" className="scroll-mt-24">
+          <Section title={t("🔔 Get scheme alerts on your phone", "🔔 योजनाओं की सूचना अपने फ़ोन पर पाएँ")}>
+            <SchemeAlertSignup />
+          </Section>
+        </div>
+
+        <StaffOnly>
+          <Section title={t("✏ Staff: send scheme alerts to eligible parents", "✏ स्टाफ़: पात्र अभिभावकों को योजना अलर्ट भेजें")}>
+            <SchemeAlertsPanel />
+          </Section>
+        </StaffOnly>
 
         <ul className="grid gap-4 md:grid-cols-2">
           {shown.map((s) => (

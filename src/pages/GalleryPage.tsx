@@ -1,3 +1,4 @@
+import { StaffOnly } from "../staff/StaffLogin";
 import { useEffect, useState } from "react";
 import { SchoolPageHeader } from "../components/SchoolPageHeader";
 import { DemoNote, UploadForm } from "../components/Uploads";
@@ -6,6 +7,7 @@ import { PageBody } from "../components/ui";
 import { imageUrl } from "../data/schools";
 import { deleteUpload, useFileUrl, useUploads, type UploadItem } from "../data/uploads";
 import { useSchool } from "../schoolContext";
+import { useStaffRole } from "../staff/staff";
 
 interface Shown {
   url: string;
@@ -40,9 +42,10 @@ function Tile({ photo, onOpen, onDelete }: { photo: Shown; onOpen: () => void; o
 
 function UploadedTile({ item, onOpen }: { item: UploadItem; onOpen: (p: Shown) => void }) {
   const url = useFileUrl(item);
+  const role = useStaffRole();
   if (!url) return null;
   const photo = { url, caption: item.title };
-  return <Tile photo={photo} onOpen={() => onOpen(photo)} onDelete={() => deleteUpload(item.id)} />;
+  return <Tile photo={photo} onOpen={() => onOpen(photo)} onDelete={role ? () => deleteUpload(item.id) : undefined} />;
 }
 
 export function GalleryPage() {
@@ -64,11 +67,13 @@ export function GalleryPage() {
       <PageBody>
         <div className="space-y-3">
           <UploadForm config={UPLOAD_CONFIGS.photo} />
-          <DemoNote />
+          <StaffOnly>
+            <DemoNote />
+          </StaffOnly>
         </div>
         {real.length + uploaded.length === 0 ? (
           <p className="rounded-md border border-dashed border-slate-300 p-6 text-center text-slate-500">
-            अभी कोई फ़ोटो नहीं है। ऊपर के बटन से स्कूल की फ़ोटो अपलोड करें।
+            अभी कोई फ़ोटो नहीं है। स्कूल स्टाफ़ लॉगिन करके फ़ोटो अपलोड कर सकते हैं।
           </p>
         ) : (
           <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

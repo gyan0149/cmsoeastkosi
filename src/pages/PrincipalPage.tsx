@@ -1,5 +1,6 @@
 import { SchoolPageHeader } from "../components/SchoolPageHeader";
 import { ComingSoonNote, PageBody, Section } from "../components/ui";
+import { AskPrincipal } from "../components/AskPrincipal";
 import { PrincipalAvatar } from "../components/PrincipalAvatar";
 import { HistoryTimeline, ObjectiveCards, SchoolPhotoFigure } from "../components/SchoolStory";
 import { PRINCIPAL_PRIORITIES, samplePrincipalMessage } from "../data/principal";
@@ -107,6 +108,12 @@ export function PrincipalPage() {
               </Section>
             ) : null}
           </aside>
+        </div>
+
+        <div id="faq" className="scroll-mt-24">
+          <Section title="Questions & Answers · सवाल-जवाब">
+            <AskPrincipal />
+          </Section>
         </div>
 
         {school.story && (
